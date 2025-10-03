@@ -27,7 +27,7 @@ const Navbar = () => {
               <Link to="/" className="flex items-center gap-2.5">
                 <ShipWheelIcon className="size-9 text-primary" />
                 <span className="text-3xl font-bold font-mono bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary  tracking-wider">
-                  Streamify
+                 Bhasabandhu
                 </span>
               </Link>
             </div>
@@ -44,11 +44,17 @@ const Navbar = () => {
           {/* TODO */}
           <ThemeSelector />
 
-          <div className="avatar">
-            <div className="w-9 rounded-full">
-              <img src={authUser?.profilePic} alt="User Avatar" rel="noreferrer" />
-            </div>
-          </div>
+  <div className="avatar">
+  <Link to="/profile">
+    <div className="w-9 h-9 cursor-pointer">
+      <img
+        src={authUser?.profilePic || "/default-avatar.png"}
+        alt="User Avatar"
+        className="w-full h-full object-cover rounded-full"
+      />
+    </div>
+  </Link>
+</div>
 
           {/* Logout button */}
           <button className="btn btn-ghost btn-circle" onClick={logoutMutation}>

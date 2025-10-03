@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router";
+import ReactDOM from "react-dom/client";
 
 import HomePage from "./pages/HomePage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
@@ -14,6 +15,7 @@ import PageLoader from "./components/PageLoader.jsx";
 import useAuthUser from "./hooks/useAuthUser.js";
 import Layout from "./components/Layout.jsx";
 import { useThemeStore } from "./store/useThemeStore.js";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 const App = () => {
   const { isLoading, authUser } = useAuthUser();
@@ -39,6 +41,20 @@ const App = () => {
             )
           }
         />
+        <Route
+  path="/profile"
+  element={
+    isAuthenticated && isOnboarded ? (
+      <Layout showSidebar={true}>
+        <ProfilePage />
+      </Layout>
+    ) : (
+      <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+    )
+  }
+/>
+
+
         <Route
           path="/signup"
           element={
