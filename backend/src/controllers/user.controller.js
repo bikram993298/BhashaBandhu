@@ -5,14 +5,19 @@ export async function getRecommendedUsers(req, res) {
   try {
     const currentUserId = req.user.id;
     const currentUser = req.user;
+    const { language } = req.query;
 
-    const recommendedUsers = await User.find({
-      $and: [
-        { _id: { $ne: currentUserId } }, //exclude current user
-        { _id: { $nin: currentUser.friends } }, // exclude current user's friends
-        { isOnboarded: true },
-      ],
-    });
+    const filters = [
+      { _id: { $ne: currentUserId } },
+      { _id: { $nin: currentUser.friends } },
+      { isOnboarded: true },
+    ];
+
+    if (language) {
+      filters.push({ learningLanguage: language.toLowerCase() });
+    }
+
+    const recommendedUsers = await User.find({ $and: filters });
     res.status(200).json(recommendedUsers);
   } catch (error) {
     console.error("Error in getRecommendedUsers controller", error.message);

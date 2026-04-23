@@ -1,119 +1,198 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import toast from "react-hot-toast";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getAuthUser } from "../lib/api";
+import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router";
+import { CameraIcon, LoaderIcon, MapPinIcon } from "lucide-react";
+import { LANGUAGES } from "../constants";
+import useAuthUser from "../hooks/useAuthUser";
+import useUpdateProfile from "../hooks/useUpdateProfile";
 
 const ProfilePage = () => {
-  const queryClient = useQueryClient();
-  const { data: authUserData } = useQuery({
-    queryKey: ["authUser"],
-    queryFn: getAuthUser,
-    retry: false,
+  const { authUser } = useAuthUser();
+  const objectUrlRef = useRef(null);
+
+  const [formState, setFormState] = useState({
+    fullName: "",
+    bio: "",
+    nativeLanguage: "",
+    learningLanguage: "",
+    location: "",
   });
-
-  const authUser = authUserData?.user;
-
-  const [fullName, setFullName] = useState("");
-  const [bio, setBio] = useState("");
-  const [nativeLanguage, setNativeLanguage] = useState("");
-  const [learningLanguage, setLearningLanguage] = useState("");
-  const [location, setLocation] = useState("");
   const [profilePic, setProfilePic] = useState(null);
   const [preview, setPreview] = useState("");
 
   useEffect(() => {
     if (authUser) {
-      setFullName(authUser.fullName || "");
-      setBio(authUser.bio || "");
-      setNativeLanguage(authUser.nativeLanguage || "");
-      setLearningLanguage(authUser.learningLanguage || "");
-      setLocation(authUser.location || "");
+      setFormState({
+        fullName: authUser.fullName || "",
+        bio: authUser.bio || "",
+        nativeLanguage: authUser.nativeLanguage || "",
+        learningLanguage: authUser.learningLanguage || "",
+        location: authUser.location || "",
+      });
       setPreview(authUser.profilePic || "");
     }
   }, [authUser]);
 
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    };
+  }, []);
+
+  const { mutate: updateProfileMutation, isPending } = useUpdateProfile();
+
   const handleFileChange = (e) => {
-    setProfilePic(e.target.files[0]);
-    setPreview(URL.createObjectURL(e.target.files[0]));
+    const file = e.target.files[0];
+    if (!file) return;
+    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    const url = URL.createObjectURL(file);
+    objectUrlRef.current = url;
+    setProfilePic(file);
+    setPreview(url);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("fullName", fullName);
-    formData.append("bio", bio);
-    formData.append("nativeLanguage", nativeLanguage);
-    formData.append("learningLanguage", learningLanguage);
-    formData.append("location", location);
+    formData.append("fullName", formState.fullName);
+    formData.append("bio", formState.bio);
+    formData.append("nativeLanguage", formState.nativeLanguage);
+    formData.append("learningLanguage", formState.learningLanguage);
+    formData.append("location", formState.location);
     if (profilePic) formData.append("profilePic", profilePic);
-
-    try {
-      const res = await axios.put("/api/profile", formData, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      // Update React Query cache instead of setAuthUser
-      queryClient.setQueryData(["authUser"], { user: res.data });
-
-      toast.success("Profile updated successfully!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update profile");
-    }
+    updateProfileMutation(formData);
   };
 
   return (
-    <div className="max-w-md mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Edit Profile</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col items-center">
-          <img
-            src={preview || "/default-avatar.png"}
-            alt="Profile"
-            className="w-24 h-24 rounded-full object-cover mb-2"
-          />
-          <input type="file" onChange={handleFileChange} />
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="container mx-auto max-w-2xl">
+        <div className="card bg-base-200 shadow-xl">
+          <div className="card-body p-6 sm:p-8">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-6">Edit Profile</h1>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* PROFILE PIC */}
+              <div className="flex flex-col items-center space-y-3">
+                <div className="relative size-32 rounded-full overflow-hidden bg-base-300 group">
+                  {preview ? (
+                    <img src={preview} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <CameraIcon className="size-12 text-base-content opacity-40" />
+                    </div>
+                  )}
+                  <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <CameraIcon className="size-8 text-white" />
+                    <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                  </label>
+                </div>
+                <p className="text-xs opacity-60">Click avatar to change photo</p>
+              </div>
+
+              {/* FULL NAME */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Full Name</span>
+                </label>
+                <input
+                  type="text"
+                  value={formState.fullName}
+                  onChange={(e) => setFormState({ ...formState, fullName: e.target.value })}
+                  className="input input-bordered w-full"
+                  placeholder="Your full name"
+                />
+              </div>
+
+              {/* BIO */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Bio</span>
+                </label>
+                <textarea
+                  value={formState.bio}
+                  onChange={(e) => setFormState({ ...formState, bio: e.target.value })}
+                  className="textarea textarea-bordered h-24"
+                  placeholder="Tell others about yourself and your language learning goals"
+                />
+              </div>
+
+              {/* LANGUAGES */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Native Language</span>
+                  </label>
+                  <select
+                    value={formState.nativeLanguage}
+                    onChange={(e) => setFormState({ ...formState, nativeLanguage: e.target.value })}
+                    className="select select-bordered w-full"
+                  >
+                    <option value="">Select native language</option>
+                    {LANGUAGES.map((lang) => (
+                      <option key={`native-${lang}`} value={lang.toLowerCase()}>
+                        {lang}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Learning Language</span>
+                  </label>
+                  <select
+                    value={formState.learningLanguage}
+                    onChange={(e) =>
+                      setFormState({ ...formState, learningLanguage: e.target.value })
+                    }
+                    className="select select-bordered w-full"
+                  >
+                    <option value="">Select learning language</option>
+                    {LANGUAGES.map((lang) => (
+                      <option key={`learning-${lang}`} value={lang.toLowerCase()}>
+                        {lang}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* LOCATION */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Location</span>
+                </label>
+                <div className="relative">
+                  <MapPinIcon className="absolute top-1/2 -translate-y-1/2 left-3 size-5 text-base-content opacity-70" />
+                  <input
+                    type="text"
+                    value={formState.location}
+                    onChange={(e) => setFormState({ ...formState, location: e.target.value })}
+                    className="input input-bordered w-full pl-10"
+                    placeholder="City, Country"
+                  />
+                </div>
+              </div>
+
+              {/* ACTIONS */}
+              <div className="flex gap-3 pt-2">
+                <Link to="/" className="btn btn-outline flex-1">
+                  Cancel
+                </Link>
+                <button type="submit" className="btn btn-primary flex-1" disabled={isPending}>
+                  {isPending ? (
+                    <>
+                      <LoaderIcon className="animate-spin size-4 mr-2" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <input
-          type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          placeholder="Full Name"
-          className="p-2 border rounded"
-        />
-        <textarea
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          placeholder="Bio"
-          className="p-2 border rounded"
-        />
-        <input
-          type="text"
-          value={nativeLanguage}
-          onChange={(e) => setNativeLanguage(e.target.value)}
-          placeholder="Native Language"
-          className="p-2 border rounded"
-        />
-        <input
-          type="text"
-          value={learningLanguage}
-          onChange={(e) => setLearningLanguage(e.target.value)}
-          placeholder="Learning Language"
-          className="p-2 border rounded"
-        />
-        <input
-          type="text"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Location"
-          className="p-2 border rounded"
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-          Save
-        </button>
-      </form>
+      </div>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { Channel, ChannelHeader, Chat, MessageInput, MessageList, Thread, Window
 import { useChat } from "../context/ChatProvider.jsx";
 import ChatLoader from "../components/ChatLoader";
 import CallButton from "../components/CallButton";
+import NotificationHandler from "../components/NotificationHandler";
 import toast from "react-hot-toast";
 
 const ChatPage = () => {
@@ -44,6 +45,7 @@ const ChatPage = () => {
     <div className="h-[93vh]">
       <Chat client={chatClient}>
         <Channel channel={channel}>
+          <NotificationHandler />
           <div className="w-full relative">
             <CallButton handleVideoCall={handleVideoCall} />
             <Window>

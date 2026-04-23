@@ -34,8 +34,8 @@ export async function getUserFriends() {
   return response.data;
 }
 
-export async function getRecommendedUsers() {
-  const response = await axiosInstance.get("/users");
+export async function getRecommendedUsers(language = "") {
+  const response = await axiosInstance.get(`/users${language ? `?language=${encodeURIComponent(language)}` : ""}`);
   return response.data;
 }
 
@@ -61,5 +61,18 @@ export async function acceptFriendRequest(requestId) {
 
 export async function getStreamToken() {
   const response = await axiosInstance.get("/chat/token");
+  return response.data;
+}
+
+export async function updateProfile(formData) {
+  const response = await axiosInstance.put("/profile", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data;
+}
+
+export async function getRecommendedUsersByLanguage(language) {
+  const params = language ? { language } : {};
+  const response = await axiosInstance.get("/users", { params });
   return response.data;
 }

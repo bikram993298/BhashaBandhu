@@ -7,9 +7,16 @@ import {
   sendFriendRequest,
 } from "../lib/api";
 import { Link } from "react-router";
-import { CheckCircleIcon, MapPinIcon, UserPlusIcon, UsersIcon } from "lucide-react";
+import {
+  CheckCircleIcon,
+  MapPinIcon,
+  SearchIcon,
+  UserPlusIcon,
+  UsersIcon,
+} from "lucide-react";
 
 import { capitialize } from "../lib/utils";
+import { LANGUAGES } from "../constants";
 
 import FriendCard, { getLanguageFlag } from "../components/FriendCard";
 import NoFriendsFound from "../components/NoFriendsFound";
@@ -17,6 +24,8 @@ import NoFriendsFound from "../components/NoFriendsFound";
 const HomePage = () => {
   const queryClient = useQueryClient();
   const [outgoingRequestsIds, setOutgoingRequestsIds] = useState(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("");
 
   const { data: friends = [], isLoading: loadingFriends } = useQuery({
     queryKey: ["friends"],
@@ -24,8 +33,8 @@ const HomePage = () => {
   });
 
   const { data: recommendedUsers = [], isLoading: loadingUsers } = useQuery({
-    queryKey: ["users"],
-    queryFn: getRecommendedUsers,
+    queryKey: ["users", selectedLanguage],
+    queryFn: () => getRecommendedUsers(selectedLanguage),
   });
 
   const { data: outgoingFriendReqs } = useQuery({
@@ -47,6 +56,15 @@ const HomePage = () => {
       setOutgoingRequestsIds(outgoingIds);
     }
   }, [outgoingFriendReqs]);
+
+  const filteredUsers = recommendedUsers.filter((user) => {
+    const matchesSearch =
+      !searchQuery ||
+      user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.location?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesSearch;
+  });
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -74,7 +92,7 @@ const HomePage = () => {
         )}
 
         <section>
-          <div className="mb-6 sm:mb-8">
+          <div className="mb-6 sm:mb-8 space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Meet New Learners</h2>
@@ -83,22 +101,61 @@ const HomePage = () => {
                 </p>
               </div>
             </div>
+
+            {/* SEARCH & FILTER */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <SearchIcon className="absolute top-1/2 -translate-y-1/2 left-3 size-4 text-base-content opacity-50" />
+                <input
+                  type="text"
+                  placeholder="Search by name or location..."
+                  className="input input-bordered w-full pl-9"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <select
+                className="select select-bordered sm:w-48"
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+              >
+                <option value="">All Languages</option>
+                {LANGUAGES.map((lang) => (
+                  <option key={lang} value={lang.toLowerCase()}>
+                    {lang}
+                  </option>
+                ))}
+              </select>
+              {(searchQuery || selectedLanguage) && (
+                <button
+                  className="btn btn-ghost btn-sm self-center"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedLanguage("");
+                  }}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
 
           {loadingUsers ? (
             <div className="flex justify-center py-12">
               <span className="loading loading-spinner loading-lg" />
             </div>
-          ) : recommendedUsers.length === 0 ? (
+          ) : filteredUsers.length === 0 ? (
             <div className="card bg-base-200 p-6 text-center">
-              <h3 className="font-semibold text-lg mb-2">No recommendations available</h3>
+              <h3 className="font-semibold text-lg mb-2">No learners found</h3>
               <p className="text-base-content opacity-70">
-                Check back later for new language partners!
+                {searchQuery || selectedLanguage
+                  ? "Try adjusting your search or filter."
+                  : "Check back later for new language partners!"}
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendedUsers.map((user) => {
+              {filteredUsers.map((user) => {
                 const hasRequestBeenSent = outgoingRequestsIds.has(user._id);
 
                 return (
@@ -123,7 +180,6 @@ const HomePage = () => {
                         </div>
                       </div>
 
-                      {/* Languages with flags */}
                       <div className="flex flex-wrap gap-1.5">
                         <span className="badge badge-secondary">
                           {getLanguageFlag(user.nativeLanguage)}
@@ -137,11 +193,10 @@ const HomePage = () => {
 
                       {user.bio && <p className="text-sm opacity-70">{user.bio}</p>}
 
-                      {/* Action button */}
                       <button
                         className={`btn w-full mt-2 ${
                           hasRequestBeenSent ? "btn-disabled" : "btn-primary"
-                        } `}
+                        }`}
                         onClick={() => sendRequestMutation(user._id)}
                         disabled={hasRequestBeenSent || isPending}
                       >
