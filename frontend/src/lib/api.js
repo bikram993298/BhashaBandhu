@@ -114,3 +114,5 @@ export async function deleteStory(storyId) {
   const response = await axiosInstance.delete(`/stories/${storyId}`);
   return response.data;
 }
+
+export default axiosInstance;

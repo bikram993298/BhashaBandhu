@@ -18,6 +18,7 @@ import Layout from "./components/Layout.jsx";
 import { useThemeStore } from "./store/useThemeStore.js";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import ReelsPage from "./pages/ReelsPage.jsx";
+import ChatbotPage from "./pages/ChatbotPage.jsx";
 
 const App = () => {
   const { isLoading, authUser } = useAuthUser();
@@ -76,6 +77,17 @@ const App = () => {
               <Layout showSidebar={true}>
                 <ReelsPage />
               </Layout>
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
+        />
+
+        <Route
+          path="/chatbot"
+          element={
+            isAuthenticated && isOnboarded ? (
+              <ChatbotPage />
             ) : (
               <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
             )

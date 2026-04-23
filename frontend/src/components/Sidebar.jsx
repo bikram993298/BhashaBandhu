@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
-import { BellIcon, FilmIcon, HomeIcon, ShipWheelIcon, UsersIcon } from "lucide-react";
+import { BellIcon, FilmIcon, HomeIcon, ShipWheelIcon, UsersIcon, BotIcon } from "lucide-react";
 
 const Sidebar = () => {
   const { authUser } = useAuthUser();
@@ -47,6 +47,16 @@ const Sidebar = () => {
         >
           <FilmIcon className="size-5 text-base-content opacity-70" />
           <span>Reels</span>
+        </Link>
+
+        <Link
+          to="/chatbot"
+          className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case ${
+            currentPath === "/chatbot" ? "btn-active" : ""
+          }`}
+        >
+          <BotIcon className="size-5 text-base-content opacity-70" />
+          <span>AI Learning</span>
         </Link>
 
         <Link
