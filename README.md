@@ -14,6 +14,9 @@ Users can search for different Indian languages they want to learn, connect with
 
 * 🌐 **Real-time Messaging** with typing indicators, reactions, and read receipts  
 * 📹 **1-on-1 & Group Video Calls** with screen sharing and recording  
+* 📖 **24hr Stories** – Share "Word of the Day", pronunciation clips, cultural snippets (auto-expire after 24 hours)
+* 👁️ **View Tracking** – See who watched your stories with viewer list  
+* 🎨 **Story Reactions** – React with emojis (❤️, 😂, 😍, 🔥, 👏, 🙌)  
 * 🧑‍🤝‍🧑 **Language Exchange** – search and connect with learners from different Indian states  
 * 🖼️ **Profile Editing** – update bio & upload profile picture securely using **Cloudinary**  
 * 🎨 **32 Unique UI Themes** for personalized learning experience  
@@ -76,12 +79,21 @@ Then visit 👉 `http://localhost:5173`
 
 ---
 
+## � Documentation
+
+- 📱 **[Mobile Optimization Guide](./MOBILE_OPTIMIZATION.md)** – Comprehensive mobile responsiveness documentation  
+- 📖 **[Stories Feature Guide](./STORIES_FEATURE.md)** – Complete Stories feature implementation & API reference
+
+---
+
 ## 📌 Future Enhancements
 
-* 🌍 Add **regional language translation** & AI-based pronunciation practice
-* 📱 Progressive Web App (PWA) for **mobile-first usage**
-* 🏆 Gamification with badges for consistent learners
-* 🤝 Community & Group Learning Rooms
+* 🌍 Add **regional language translation** & AI-based pronunciation practice  
+* 📱 Progressive Web App (PWA) for **mobile-first usage**  
+* 🏆 Gamification with badges for consistent learners  
+* 🤝 Community & Group Learning Rooms  
+* 🔍 Advanced story discovery & recommendations  
+* 🎙️ Audio-only stories for pronunciation practice  
 
 ---
 

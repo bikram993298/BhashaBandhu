@@ -2,6 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile optimizations */
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
+
+input, textarea, button, select {
+  -webkit-user-select: text;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling on mobile */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Safe area support for notched phones */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+}
+
+/* Optimize touch targets to 44x44px minimum */
+@media (max-width: 640px) {
+  .btn {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+
+  .btn-sm {
+    min-height: 2.25rem;
+    min-width: 2.25rem;
+  }
+}
+
+/* Stream Chat mobile optimizations */
 .str-chat__channel {
   display: flex;
   align-items: center;
@@ -13,7 +62,7 @@
 .str-chat__container {
   max-width: 1200px;
   width: 100%;
-  height: 80% !important;
+  height: 100% !important;
   margin: 0 auto !important;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -22,7 +71,7 @@
 
 .str-chat__list {
   background-color: #ffffff;
-  padding: 12px;
+  padding: 8px;
 }
 
 .str-chat__list-notifications {
@@ -31,4 +80,48 @@
 
 .str-chat__message-input {
   border-top: 1px solid #ddd;
+}
+
+/* Mobile-friendly text sizing */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Prevent zoom on input focus */
+input, textarea, select {
+  font-size: 16px !important;
+}
+
+/* Improve readability of links on mobile */
+@media (max-width: 640px) {
+  a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Better card spacing on mobile */
+@media (max-width: 640px) {
+  .card {
+    border-radius: 0.5rem;
+  }
 }

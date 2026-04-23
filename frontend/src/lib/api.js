@@ -76,3 +76,41 @@ export async function getRecommendedUsersByLanguage(language) {
   const response = await axiosInstance.get("/users", { params });
   return response.data;
 }
+
+// Story API functions
+export async function createStory(storyData) {
+  const response = await axiosInstance.post("/stories", storyData, {
+    headers: storyData instanceof FormData ? { "Content-Type": "multipart/form-data" } : {},
+  });
+  return response.data;
+}
+
+export async function getStoryFeed() {
+  const response = await axiosInstance.get("/stories/feed");
+  return response.data;
+}
+
+export async function getUserStories() {
+  const response = await axiosInstance.get("/stories/user/stories");
+  return response.data;
+}
+
+export async function viewStory(storyId) {
+  const response = await axiosInstance.get(`/stories/${storyId}`);
+  return response.data;
+}
+
+export async function getStoryViewers(storyId) {
+  const response = await axiosInstance.get(`/stories/${storyId}/viewers`);
+  return response.data;
+}
+
+export async function reactToStory(storyId, emoji) {
+  const response = await axiosInstance.post(`/stories/${storyId}/react`, { emoji });
+  return response.data;
+}
+
+export async function deleteStory(storyId) {
+  const response = await axiosInstance.delete(`/stories/${storyId}`);
+  return response.data;
+}

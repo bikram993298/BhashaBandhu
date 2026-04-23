@@ -13,4 +13,34 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    // Optimize for mobile browsers
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+      },
+    },
+    // Code splitting for better caching
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router"],
+          "chat-vendor": ["stream-chat", "stream-chat-react"],
+          "ui-vendor": ["daisyui"],
+        },
+      },
+    },
+  },
+  // Optimize for mobile performance
+  optimizeDeps: {
+    include: [
+      "react",
+      "react-dom",
+      "react-router",
+      "stream-chat",
+      "stream-chat-react",
+      "@tanstack/react-query",
+    ],
+  },
 });
